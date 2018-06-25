@@ -214,12 +214,19 @@ function getAllowedDataTypes(dataSerializer) {
 
 function getProcessedData(data, dataSerializer) {
   data = data || {};
-
+  
   var currentDataType = getTypeOf(data);
   var allowedDataTypes = getAllowedDataTypes(dataSerializer);
 
   if (allowedDataTypes.indexOf(currentDataType) === -1) {
     throw new Error(messages.DATA_TYPE_MISMATCH + ' ' + allowedDataTypes.join(', '));
+  }
+  
+  //Failsafe fix for issues handling unicode line-ends - iOS only?
+  if (currentDataType === 'String') {
+    data = data.replace(/\u2028/g, "\n").replace(/\u2029/g, "\n");
+  } else if (currentDataType === 'Object' || currentDataType === 'Array') {
+    data = JSON.parse( JSON.stringify( data ).replace(/\u2028/g, "\n").replace(/\u2029/g, "\n") ); 
   }
 
   if (dataSerializer === 'utf8') {
