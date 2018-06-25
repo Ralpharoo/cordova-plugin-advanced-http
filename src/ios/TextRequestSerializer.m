@@ -33,7 +33,12 @@
             [mutableRequest setValue:@"text/plain; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
         }
 
-        [mutableRequest setHTTPBody: [[parameters valueForKey:@"text"] dataUsingEncoding:NSUTF8StringEncoding]];
+        //Fix for iOS line-feed issues with Cordova
+        NSString* sSafeString = [NSString stringWithUTF8String:[[parameters valueForKey:@"text"] bytes]];
+        sSafeString = [sSafeString stringByReplacingOccurrencesOfString:@"\u2028" withString:@"\n"];
+        sSafeString = [sSafeString stringByReplacingOccurrencesOfString:@"\u2029" withString:@"\n"];
+        
+        [mutableRequest setHTTPBody: [sSafeString dataUsingEncoding:NSUTF8StringEncoding]];
     }
 
     return mutableRequest;
