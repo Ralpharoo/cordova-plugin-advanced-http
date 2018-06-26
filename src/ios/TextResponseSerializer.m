@@ -60,6 +60,12 @@ static BOOL AFErrorOrUnderlyingErrorHasCodeInDomain(NSError *error, NSInteger co
       decoded = [[NSString alloc] initWithData:rawResponseData encoding:SupportedEncodings[i]];
     }
   }
+  
+  //Fix for iOS line-feed issues with Cordova
+  if (decoded != nil) {
+    decoded = [decoded stringByReplacingOccurrencesOfString:@"\u2028" withString:@"\n"];
+    decoded = [decoded stringByReplacingOccurrencesOfString:@"\u2029" withString:@"\n"];
+  }
 
   return decoded;
 }
